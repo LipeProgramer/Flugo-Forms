@@ -6,12 +6,14 @@ interface Props {
   formData: Colaborador;
   setFormData: Dispatch<SetStateAction<Colaborador>>;
   onNext: () => void;
+  onBack: () => void;
 }
 
 export default function StepDadosPessoais({
   formData,
   setFormData,
   onNext,
+  onBack,
 }: Props) {
   const isValid =
     formData.nome.trim() !== "" &&
@@ -45,9 +47,13 @@ export default function StepDadosPessoais({
         }
       />
 
-      <Button variant="contained" disabled={!isValid} onClick={onNext}>
-        Próximo
-      </Button>
+      <Box display="flex" justifyContent="space-between">
+        <Button onClick={onBack}>Voltar</Button>
+
+        <Button variant="contained" disabled={!isValid} onClick={onNext}>
+          Próximo
+        </Button>
+      </Box>
     </Box>
   );
 }

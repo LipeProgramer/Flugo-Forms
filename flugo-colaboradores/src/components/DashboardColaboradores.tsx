@@ -8,7 +8,8 @@ import {
 } from "@mui/material";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
-import logo from "../assets/flugo-logo.png";
+import { profileImages } from "../utils/profileImages";
+import AppShell from "./AppShell";
 
 interface Props {
   onNovoColaborador: () => void;
@@ -20,12 +21,15 @@ interface ColaboradorFirebase {
   email: string;
   departamento: string;
   status?: string;
+  profileImage?: string;
 }
 
 export default function DashboardColaboradores({
   onNovoColaborador,
 }: Props) {
   const [colaboradores, setColaboradores] = useState<ColaboradorFirebase[]>([]);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const carregarColaboradores = async () => {
@@ -37,75 +41,56 @@ export default function DashboardColaboradores({
           ...doc.data(),
         })) as ColaboradorFirebase[];
 
-        setColaboradores(lista);
+        const listaOrdenada = lista.sort((a, b) =>
+          a.nome.localeCompare(b.nome)
+        );
+
+        setColaboradores(listaOrdenada);
       } catch (error) {
         console.error("Erro ao buscar colaboradores:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     carregarColaboradores();
   }, []);
 
-  return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        backgroundColor: "#f5f5f5",
-        display: "flex",
-      }}
-    >
-      <Box
-        sx={{
-          width: 230,
-          backgroundColor: "#ffffff",
-          borderRight: "1px solid #e5e7eb",
-          p: 3,
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center", mb: 4 }}>
-          <img src={logo} alt="Flugo" style={{ width: 28, marginRight: 8 }} />
-          <Typography
-            sx={{
-              fontWeight: 700,
-              fontSize: 20,
-              color: "#0f172a",
-            }}
-          >
-            flugo
-          </Typography>
-        </Box>
+  const ordenarPorNome = () => {
+    const novaDirecao = sortDirection === "asc" ? "desc" : "asc";
 
+    const listaOrdenada = [...colaboradores].sort((a, b) =>
+      novaDirecao === "asc"
+        ? a.nome.localeCompare(b.nome)
+        : b.nome.localeCompare(a.nome)
+    );
+
+    setColaboradores(listaOrdenada);
+    setSortDirection(novaDirecao);
+  };
+
+  if (loading) {
+    return (
+      <AppShell>
         <Box
           sx={{
+            minHeight: "60vh",
             display: "flex",
             alignItems: "center",
-            gap: 1.5,
-            color: "#334155",
-            fontSize: 14,
+            justifyContent: "center",
           }}
         >
-          <Box
-            sx={{
-              width: 18,
-              height: 18,
-              borderRadius: "4px",
-              backgroundColor: "#94a3b8",
-            }}
-          />
-          <Typography sx={{ fontSize: 14, color: "#334155" }}>
-            Colaboradores
-          </Typography>
-          <Typography sx={{ marginLeft: "auto", color: "#334155" }}>
-            ›
+          <Typography sx={{ fontSize: 16, color: "#475569" }}>
+            Carregando colaboradores...
           </Typography>
         </Box>
-      </Box>
+      </AppShell>
+    );
+  }
 
-      <Box sx={{ flex: 1, p: 4 }}>
-        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 4 }}>
-          <Avatar sx={{ width: 36, height: 36 }} />
-        </Box>
-
+  return (
+    <AppShell>
+      <Box sx={{ maxWidth: 1100, margin: "0 auto" }}>
         <Box
           sx={{
             display: "flex",
@@ -165,11 +150,17 @@ export default function DashboardColaboradores({
               borderBottom: "1px solid #eef2f7",
             }}
           >
-            <Typography sx={headerStyle}>Nome ↓</Typography>
-            <Typography sx={headerStyle}>Email ↓</Typography>
-            <Typography sx={headerStyle}>Departamento ↓</Typography>
+            <Typography
+              sx={{ ...headerStyle, cursor: "pointer", userSelect: "none" }}
+              onClick={ordenarPorNome}
+            >
+              Nome {sortDirection === "asc" ? "↓" : "↑"}
+            </Typography>
+
+            <Typography sx={headerStyle}>Email</Typography>
+            <Typography sx={headerStyle}>Departamento</Typography>
             <Typography sx={{ ...headerStyle, textAlign: "right" }}>
-              Status ↓
+              Status
             </Typography>
           </Box>
 
@@ -190,6 +181,11 @@ export default function DashboardColaboradores({
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                 <Avatar
+                  src={
+                    colaborador.profileImage
+                      ? profileImages[colaborador.profileImage]
+                      : undefined
+                  }
                   sx={{
                     width: 36,
                     height: 36,
@@ -198,7 +194,9 @@ export default function DashboardColaboradores({
                     color: "#334155",
                   }}
                 >
-                  {colaborador.nome?.charAt(0).toUpperCase()}
+                  {!colaborador.profileImage
+                    ? colaborador.nome?.charAt(0).toUpperCase()
+                    : ""}
                 </Avatar>
 
                 <Typography sx={cellStyle}>{colaborador.nome}</Typography>
@@ -234,7 +232,7 @@ export default function DashboardColaboradores({
           )}
         </Paper>
       </Box>
-    </Box>
+    </AppShell>
   );
 }
 

@@ -1,53 +1,46 @@
-import { useState } from "react";
-import { Box, Stepper, Step, StepLabel } from "@mui/material";
-
 import StepDadosPessoais from "./steps/StepDadosPessoais";
 import StepDadosProfissionais from "./steps/StepDadosProfissionais";
 import StepConfirmacao from "./steps/StepConfirmacao";
-
 import type { Colaborador } from "../types/Colaborador";
+import type { Dispatch, SetStateAction } from "react";
 
-const steps = ["Dados pessoais", "Dados profissionais", "Confirmação"];
+interface Props {
+  formData: Colaborador;
+  setFormData: Dispatch<SetStateAction<Colaborador>>;
+  onCancel: () => void;
+  onFinish: () => void;
+  step: number;
+  setStep: Dispatch<SetStateAction<number>>;
+}
 
-export default function MultiStepForm() {
-  const [activeStep, setActiveStep] = useState(0);
-
-  const [formData, setFormData] = useState<Colaborador>({
-    nome: "",
-    email: "",
-    telefone: "",
-    departamento: "",
-    cargo: "",
-    dataAdmissao: "",
-  });
-
+export default function MultiStepForm({
+  formData,
+  setFormData,
+  onCancel,
+  onFinish,
+  step,
+  setStep,
+}: Props) {
   const nextStep = () => {
-    setActiveStep((prev) => prev + 1);
+    setStep((prev) => prev + 1);
   };
 
   const prevStep = () => {
-    setActiveStep((prev) => prev - 1);
+    setStep((prev) => prev - 1);
   };
 
   return (
-    <Box sx={{ width: "100%", maxWidth: 600, margin: "auto", mt: 5 }}>
-      <Stepper activeStep={activeStep}>
-        {steps.map((step) => (
-          <Step key={step}>
-            <StepLabel>{step}</StepLabel>
-          </Step>
-        ))}
-      </Stepper>
-
-      {activeStep === 0 && (
+    <>
+      {step === 0 && (
         <StepDadosPessoais
           formData={formData}
           setFormData={setFormData}
           onNext={nextStep}
+          onBack={onCancel}
         />
       )}
 
-      {activeStep === 1 && (
+      {step === 1 && (
         <StepDadosProfissionais
           formData={formData}
           setFormData={setFormData}
@@ -56,9 +49,13 @@ export default function MultiStepForm() {
         />
       )}
 
-      {activeStep === 2 && (
-        <StepConfirmacao formData={formData} onBack={prevStep} />
+      {step === 2 && (
+        <StepConfirmacao
+          formData={formData}
+          onBack={prevStep}
+          onFinish={onFinish}
+        />
       )}
-    </Box>
+    </>
   );
 }

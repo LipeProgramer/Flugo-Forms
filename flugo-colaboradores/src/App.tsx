@@ -1,58 +1,24 @@
 import { useState } from "react";
 import DashboardColaboradores from "./components/DashboardColaboradores";
-import MultiStepForm from "./components/MultiStepForm";
-import type { Colaborador } from "./types/Colaborador";
+import CadastroColaboradorPage from "./components/CadastroColaboradorPage";
 
-function App() {
-  const [currentScreen, setCurrentScreen] = useState<"dashboard" | "form">("dashboard");
-
-  const [formData, setFormData] = useState<Colaborador>({
-    nome: "",
-    email: "",
-    telefone: "",
-    departamento: "",
-    cargo: "",
-    dataAdmissao: "",
-  });
-
-  const openForm = () => {
-    setCurrentScreen("form");
-  };
-
-  const goToDashboard = () => {
-    setCurrentScreen("dashboard");
-  };
-
-  const resetForm = () => {
-    setFormData({
-      nome: "",
-      email: "",
-      telefone: "",
-      departamento: "",
-      cargo: "",
-      dataAdmissao: "",
-    });
-  };
+export default function App() {
+  const [pagina, setPagina] = useState<"dashboard" | "cadastro">("dashboard");
 
   return (
     <>
-      {currentScreen === "dashboard" && (
-        <DashboardColaboradores onNovoColaborador={openForm} />
+      {pagina === "dashboard" && (
+        <DashboardColaboradores
+          onNovoColaborador={() => setPagina("cadastro")}
+        />
       )}
 
-      {currentScreen === "form" && (
-        <MultiStepForm
-          formData={formData}
-          setFormData={setFormData}
-          onCancel={goToDashboard}
-          onFinish={() => {
-            resetForm();
-            goToDashboard();
-          }}
+      {pagina === "cadastro" && (
+        <CadastroColaboradorPage
+          onCancel={() => setPagina("dashboard")}
+          onFinish={() => setPagina("dashboard")}
         />
       )}
     </>
   );
 }
-
-export default App;

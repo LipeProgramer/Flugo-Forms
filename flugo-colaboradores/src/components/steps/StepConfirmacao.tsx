@@ -1,16 +1,23 @@
-import { Box, Button, Typography } from "@mui/material";
+import { useState } from "react";
+import { Box, Button, Typography, Snackbar, Alert } from "@mui/material";
 import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../firebase/firebaseConfig";
+import { getRandomProfileImageKey } from "../../utils/getRandomProfileImage";
 import type { Colaborador } from "../../types/Colaborador";
-import { useState } from "react";
 
 interface Props {
   formData: Colaborador;
   onBack: () => void;
+  onFinish: () => void;
 }
 
-export default function StepConfirmacao({ formData, onBack }: Props) {
+export default function StepConfirmacao({
+  formData,
+  onBack,
+  onFinish,
+}: Props) {
   const [loading, setLoading] = useState(false);
+  const [successOpen, setSuccessOpen] = useState(false);
 
   const handleSubmit = async () => {
     try {
@@ -18,7 +25,10 @@ export default function StepConfirmacao({ formData, onBack }: Props) {
 
       const colaboradoresRef = collection(db, "colaboradores");
 
-      const q = query(colaboradoresRef, where("email", "==", formData.email));
+      const q = query(
+        colaboradoresRef,
+        where("email", "==", formData.email)
+      );
 
       const querySnapshot = await getDocs(q);
 
@@ -27,9 +37,14 @@ export default function StepConfirmacao({ formData, onBack }: Props) {
         return;
       }
 
-      await addDoc(colaboradoresRef, formData);
+      const profileImage = getRandomProfileImageKey();
 
-      alert("Colaborador cadastrado com sucesso!");
+      await addDoc(colaboradoresRef, {
+        ...formData,
+        profileImage,
+      });
+
+      setSuccessOpen(true);
     } catch (error) {
       alert("Erro ao salvar colaborador.");
       console.error(error);
@@ -63,10 +78,25 @@ export default function StepConfirmacao({ formData, onBack }: Props) {
 
       <Box display="flex" justifyContent="space-between" mt={2}>
         <Button onClick={onBack}>Voltar</Button>
+
         <Button variant="contained" onClick={handleSubmit} disabled={loading}>
           {loading ? "Salvando..." : "Confirmar"}
         </Button>
       </Box>
+
+      <Snackbar
+        open={successOpen}
+        autoHideDuration={2000}
+        onClose={() => {
+          setSuccessOpen(false);
+          onFinish();
+        }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert severity="success" variant="filled">
+          Colaborador cadastrado com sucesso!
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
