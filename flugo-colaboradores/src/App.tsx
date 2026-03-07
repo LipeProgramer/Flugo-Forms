@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import DashboardColaboradores from "./components/DashboardColaboradores";
 import CadastroColaboradorPage from "./components/CadastroColaboradorPage";
 
@@ -19,6 +20,7 @@ export default function App() {
           onFinish={() => setPagina("dashboard")}
         />
       )}
+      <SpeedInsights />
     </>
   );
 }
