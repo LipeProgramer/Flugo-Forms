@@ -57,11 +57,8 @@ export default function MultiStepForm() {
       )}
 
       {activeStep === 2 && (
-  <StepConfirmacao
-    formData={formData}
-    onBack={prevStep}
-  />
-)}
+        <StepConfirmacao formData={formData} onBack={prevStep} />
+      )}
     </Box>
   );
 }
