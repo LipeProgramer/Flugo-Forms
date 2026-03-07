@@ -29,25 +29,35 @@ export default function CadastroColaboradorPage({
   return (
     <AppShell>
       <Box sx={{ maxWidth: 900, margin: "0 auto" }}>
-        
-        {/* breadcrumb */}
         <Box sx={{ mb: 3 }}>
-          <Typography sx={{ fontSize: 14, color: "#64748b" }}>
-            Colaboradores • Cadastrar Colaborador
-          </Typography>
+          <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+            <Typography sx={{ fontSize: 14, color: "#64748b" }}>
+              Colaboradores
+            </Typography>
+
+            <Typography sx={{ fontSize: 14, color: "#94a3b8" }}>
+              ›
+            </Typography>
+
+            <Typography
+              sx={{ fontSize: 14, color: "#0f172a", fontWeight: 500 }}
+            >
+              Novo Colaborador
+            </Typography>
+          </Box>
         </Box>
 
-        {/* barra progresso */}
         <Box sx={{ mb: 4 }}>
           <LinearProgress
             variant="determinate"
             value={progresso}
             sx={{
-              height: 4,
+              height: 6,
               borderRadius: 999,
-              backgroundColor: "#dcfce7",
+              backgroundColor: "#e2e8f0",
               "& .MuiLinearProgress-bar": {
                 backgroundColor: "#22c55e",
+                borderRadius: 999,
               },
             }}
           />
@@ -56,15 +66,15 @@ export default function CadastroColaboradorPage({
             sx={{
               textAlign: "right",
               fontSize: 12,
-              color: "#94a3b8",
+              color: "#64748b",
               mt: 1,
+              fontWeight: 500,
             }}
           >
-            {progresso}%
+            Progresso {progresso}%
           </Typography>
         </Box>
 
-        {/* formulário */}
         <MultiStepForm
           formData={formData}
           setFormData={setFormData}
